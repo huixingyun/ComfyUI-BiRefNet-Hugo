@@ -20,7 +20,7 @@ transform_image = transforms.Compose(
 current_path  = os.getcwd()
 
 ## ComfyUI portable standalone build for Windows 
-model_path = os.path.join(current_path, "ComfyUI"+os.sep+"models"+os.sep+"BiRefNet")
+model_path = os.path.join(current_path, "models"+os.sep+"BiRefNet-Hugo")
 
 def tensor2pil(image):
     return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
@@ -65,7 +65,7 @@ class BiRefNet_Hugo:
         return {
             "required": {
                 "image": ("IMAGE",),
-                "load_local_model": ("BOOLEAN", {"default": False}),
+                "load_local_model": ("BOOLEAN", {"default": True}),
                 "background_color_name": (colors,{"default": "transparency"}), 
                 "device": (["auto", "cuda", "cpu", "mps", "xpu", "meta"],{"default": "auto"})
             },
@@ -91,13 +91,8 @@ class BiRefNet_Hugo:
        
         device = get_device_by_name(device)
         
-        if load_local_model:
-            local_model_path = kwargs.get("local_model_path", model_path)
-            birefnet = AutoModelForImageSegmentation.from_pretrained(local_model_path,trust_remote_code=True)
-        else:
-            birefnet = AutoModelForImageSegmentation.from_pretrained(
-                "ZhengPeng7/BiRefNet", trust_remote_code=True
-            )
+        local_model_path = kwargs.get("local_model_path", model_path)
+        birefnet = AutoModelForImageSegmentation.from_pretrained(local_model_path,trust_remote_code=True)
         
         birefnet.to(device)
         for image in image:
