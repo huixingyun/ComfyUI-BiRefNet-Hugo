@@ -81,7 +81,7 @@ app.registerExtension({
 				return;
 			}
 
-			if(node.widgets_values[3] != undefined){
+			if(node.widgets_values[4] != undefined){
 				localModelPathWidget.value = node.widgets_values[3];
 			}
 			

@@ -20,7 +20,8 @@ transform_image = transforms.Compose(
 current_path  = os.getcwd()
 
 ## ComfyUI portable standalone build for Windows 
-model_path = os.path.join(current_path, "models"+os.sep+"BiRefNet-Hugo")
+# model_path = os.path.join(current_path, "models"+os.sep+"BiRefNet-Hugo")
+model_path = os.path.join(current_path, "models")
 
 def tensor2pil(image):
     return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
@@ -65,12 +66,13 @@ class BiRefNet_Hugo:
         return {
             "required": {
                 "image": ("IMAGE",),
+                "model": (["ZhengPeng7/BiRefNet", "ZhengPeng7/BiRefNet_HR", "ZhengPeng7/BiRefNet-portrait"],{"default": "ZhengPeng7/BiRefNet"}),
                 "load_local_model": ("BOOLEAN", {"default": True}),
                 "background_color_name": (colors,{"default": "transparency"}), 
                 "device": (["auto", "cuda", "cpu", "mps", "xpu", "meta"],{"default": "auto"})
             },
             "optional": {
-                "local_model_path": ("STRING", {"default":model_path}),
+                "local_model_path": ("STRING", {"default":os.path.join(current_path, "models"+os.sep+"BiRefNet-Hugo")}),
             }
         }
 
@@ -81,6 +83,7 @@ class BiRefNet_Hugo:
   
     def background_remove(self, 
                           image, 
+                          model,
                           load_local_model,
                           device, 
                           background_color_name, 
@@ -90,6 +93,14 @@ class BiRefNet_Hugo:
         processed_masks = []
        
         device = get_device_by_name(device)
+
+        model_to_path_dict = {
+            'ZhengPeng7/BiRefNet': 'BiRefNet-Hugo',
+            'ZhengPeng7/BiRefNet_HR': 'BiRefNet-HR',
+            'ZhengPeng7/BiRefNet-portrait': 'BiRefNet-portrait'
+        }
+
+        model_path = os.path.join(current_path, model_to_path_dict[model])
         
         local_model_path = kwargs.get("local_model_path", model_path)
         birefnet = AutoModelForImageSegmentation.from_pretrained(local_model_path,trust_remote_code=True)
