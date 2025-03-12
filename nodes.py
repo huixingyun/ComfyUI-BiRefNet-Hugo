@@ -18,7 +18,7 @@ transform_image = transforms.Compose(
     ]
 )
 
-model_path = os.path.join(models_dir, "BiRefNet")
+model_path = os.path.join(models_dir, "BiRefNet_models")
 
 def tensor2pil(image):
     return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
