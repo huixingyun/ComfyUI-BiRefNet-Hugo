@@ -6,6 +6,7 @@ from PIL import Image
 import torch.nn.functional as F
 import comfy.model_management as mm
 import os
+from folder_paths import models_dir
 
 torch.set_float32_matmul_precision(["high", "highest"][0])
 
@@ -17,10 +18,7 @@ transform_image = transforms.Compose(
     ]
 )
 
-current_path  = os.getcwd()
-
-## ComfyUI portable standalone build for Windows 
-model_path = os.path.join(current_path, "ComfyUI"+os.sep+"models"+os.sep+"BiRefNet")
+model_path = os.path.join(models_dir, "BiRefNet")
 
 def tensor2pil(image):
     return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
