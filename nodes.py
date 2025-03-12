@@ -69,7 +69,7 @@ class BiRefNet_Hugo:
                 "device": (["auto", "cuda", "cpu", "mps", "xpu", "meta"],{"default": "auto"})
             },
             "optional": {
-                "local_model_path": ("STRING", {"default":model_path}),
+                "local_model_path": ("STRING", {"default":os.path.join(model_path, "BiRefNet")}),
             }
         }
 
@@ -95,8 +95,18 @@ class BiRefNet_Hugo:
             local_model_path = kwargs.get("local_model_path", model_path)
             birefnet = AutoModelForImageSegmentation.from_pretrained(local_model_path,trust_remote_code=True)
         else:
+            model_name = model.rsplit('/', 1)[-1]
+            local_model_path = os.path.join(model_path, model_name)
+
+            if not os.path.exists(local_model_path):
+                print(f"Downloading BiRefNet model to: {local_model_path}")
+                from huggingface_hub import snapshot_download
+                snapshot_download(repo_id=model,
+                                local_dir=local_model_path,
+                                local_dir_use_symlinks=False)
+
             birefnet = AutoModelForImageSegmentation.from_pretrained(
-                model, trust_remote_code=True
+                local_model_path, trust_remote_code=True
             )
         
         birefnet.to(device)
